@@ -1,11 +1,20 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Pressable, Alert, ScrollView, Image } from 'react-native';
-import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { Ionicons } from '@expo/vector-icons';
-import HistorialScreen from './Historial';
+import { StatusBar } from "expo-status-bar";
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Pressable,
+  Alert,
+  ScrollView,
+  Image,
+} from "react-native";
+import { SQLiteProvider, useSQLiteContext } from "expo-sqlite";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { Ionicons } from "@expo/vector-icons";
+import HistorialScreen from "./Historial";
 
 // Inicializar base de datos
 const initializeDatabase = async (db) => {
@@ -18,9 +27,9 @@ const initializeDatabase = async (db) => {
         password TEXT
       );
     `);
-    console.log('✅ Base de datos inicializada');
+    console.log("✅ Base de datos inicializada");
   } catch (error) {
-    console.log('❌ Error inicializando la base de datos:', error);
+    console.log("❌ Error inicializando la base de datos:", error);
   }
 };
 
@@ -28,20 +37,20 @@ const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <SQLiteProvider databaseName='auth.db' onInit={initializeDatabase}>
+    <SQLiteProvider databaseName="auth.db" onInit={initializeDatabase}>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName='Login'>
-        <Stack.Screen
-          name='Login'
-          component={LoginScreen}
-          options={{ title: <Text style={homeStyles.title}>AquaViva</Text> }} 
-        />
-          <Stack.Screen name='Register' component={RegisterScreen} />
-          <Stack.Screen name='Home' component={HomeScreen} />
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen
-            name='Historial'
+            name="Login"
+            component={LoginScreen}
+            options={{ title: <Text style={homeStyles.title}>AquaViva</Text> }}
+          />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen
+            name="Historial"
             component={HistorialScreen}
-            options={{ title: 'Historial de Captación' }}
+            options={{ title: "Historial de Captación" }}
           />
         </Stack.Navigator>
       </NavigationContainer>
@@ -52,31 +61,31 @@ export default function App() {
 // Pantalla de Login
 const LoginScreen = ({ navigation }) => {
   const db = useSQLiteContext();
-  const [userName, setUserName] = useState('');
-  const [password, setPassword] = useState('');
+  const [userName, setUserName] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
     if (!userName || !password) {
-      Alert.alert('Atención', 'Completa usuario y contraseña');
+      Alert.alert("Atención", "Completa usuario y contraseña");
       return;
     }
 
     try {
       const validUser = await db.getFirstAsync(
-        'SELECT * FROM users WHERE username = ? AND password = ?',
+        "SELECT * FROM users WHERE username = ? AND password = ?",
         [userName, password]
       );
 
       if (validUser) {
-        Alert.alert('✅ Bienvenido', userName);
-        navigation.navigate('Home', { user: userName });
-        setUserName('');
-        setPassword('');
+        Alert.alert("✅ Bienvenido", userName);
+        navigation.navigate("Home", { user: userName });
+        setUserName("");
+        setPassword("");
       } else {
-        Alert.alert('❌ Usuario o contraseña incorrectos');
+        Alert.alert("❌ Usuario o contraseña incorrectos");
       }
     } catch (error) {
-      console.log('Error en login:', error);
+      console.log("Error en login:", error);
     }
   };
 
@@ -85,21 +94,23 @@ const LoginScreen = ({ navigation }) => {
       <Text style={homeStyles.title}>Bienvenido a AquaViva</Text>
       <Text style={homeStyles.title}>Iniciar Sesión</Text>
       <Image
-        source={{ uri: "https://islaurbana.org/wp-content/uploads/2022/09/home-icon-1.gif" }}
+        source={{
+          uri: "https://islaurbana.org/wp-content/uploads/2022/09/home-icon-1.gif",
+        }}
         style={homeStyles.image}
         resizeMode="contain"
       />
 
       <TextInput
         style={styles.input}
-        placeholder='Usuario'
+        placeholder="Usuario"
         value={userName}
         onChangeText={setUserName}
       />
 
       <TextInput
         style={styles.input}
-        placeholder='Contraseña'
+        placeholder="Contraseña"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
@@ -109,7 +120,10 @@ const LoginScreen = ({ navigation }) => {
         <Text style={styles.buttonText}>Ingresar</Text>
       </Pressable>
 
-      <Pressable style={styles.link} onPress={() => navigation.navigate('Register')}>
+      <Pressable
+        style={styles.link}
+        onPress={() => navigation.navigate("Register")}
+      >
         <Text style={styles.linkText}>¿No tienes cuenta? Regístrate</Text>
       </Pressable>
     </View>
@@ -119,41 +133,41 @@ const LoginScreen = ({ navigation }) => {
 // Pantalla de Registro
 const RegisterScreen = ({ navigation }) => {
   const db = useSQLiteContext();
-  const [userName, setUserName] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [userName, setUserName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleRegister = async () => {
     if (!userName || !password || !confirmPassword) {
-      Alert.alert('Atención', 'Completa todos los campos');
+      Alert.alert("Atención", "Completa todos los campos");
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Las contraseñas no coinciden');
+      Alert.alert("Error", "Las contraseñas no coinciden");
       return;
     }
 
     try {
       const existingUser = await db.getFirstAsync(
-        'SELECT * FROM users WHERE username = ?',
+        "SELECT * FROM users WHERE username = ?",
         [userName]
       );
 
       if (existingUser) {
-        Alert.alert('Error', 'El usuario ya existe');
+        Alert.alert("Error", "El usuario ya existe");
         return;
       }
 
       await db.runAsync(
-        'INSERT INTO users (username, password) VALUES (?, ?)',
+        "INSERT INTO users (username, password) VALUES (?, ?)",
         [userName, password]
       );
 
-      Alert.alert('✅ Registro exitoso');
-      navigation.navigate('Login');
+      Alert.alert("✅ Registro exitoso");
+      navigation.navigate("Login");
     } catch (error) {
-      console.log('Error en registro:', error);
+      console.log("Error en registro:", error);
     }
   };
 
@@ -161,21 +175,23 @@ const RegisterScreen = ({ navigation }) => {
     <View style={styles.container}>
       <Text style={homeStyles.title}>Registrarse</Text>
       <Image
-        source={{ uri: "https://islaurbana.org/wp-content/uploads/2022/09/home-icon-1.gif" }}
+        source={{
+          uri: "https://islaurbana.org/wp-content/uploads/2022/09/home-icon-1.gif",
+        }}
         style={homeStyles.image}
         resizeMode="contain"
       />
 
       <TextInput
         style={styles.input}
-        placeholder='Usuario'
+        placeholder="Usuario"
         value={userName}
         onChangeText={setUserName}
       />
 
       <TextInput
         style={styles.input}
-        placeholder='Contraseña'
+        placeholder="Contraseña"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
@@ -183,7 +199,7 @@ const RegisterScreen = ({ navigation }) => {
 
       <TextInput
         style={styles.input}
-        placeholder='Confirmar contraseña'
+        placeholder="Confirmar contraseña"
         secureTextEntry
         value={confirmPassword}
         onChangeText={setConfirmPassword}
@@ -193,7 +209,10 @@ const RegisterScreen = ({ navigation }) => {
         <Text style={styles.buttonText}>Registrar</Text>
       </Pressable>
 
-      <Pressable style={styles.link} onPress={() => navigation.navigate('Login')}>
+      <Pressable
+        style={styles.link}
+        onPress={() => navigation.navigate("Login")}
+      >
         <Text style={styles.linkText}>¿Ya tienes cuenta? Inicia sesión</Text>
       </Pressable>
     </View>
@@ -204,15 +223,18 @@ const RegisterScreen = ({ navigation }) => {
 const HomeScreen = ({ navigation, route }) => {
   const { user } = route.params;
 
-
   return (
     <ScrollView contentContainerStyle={homeStyles.container}>
       <Text style={homeStyles.title}>Bienvenido a AquaViva</Text>
       <Text style={homeStyles.subtitle}>Hola, {user} 👋</Text>
-      <Text style={homeStyles.subtitle}>Sistema de captación pluvial inteligente</Text>
+      <Text style={homeStyles.subtitle}>
+        Sistema de captación pluvial inteligente
+      </Text>
 
       <Image
-        source={{ uri: "https://islaurbana.org/wp-content/uploads/2022/09/home-icon-1.gif" }}
+        source={{
+          uri: "https://islaurbana.org/wp-content/uploads/2022/09/home-icon-1.gif",
+        }}
         style={homeStyles.image}
         resizeMode="contain"
       />
@@ -220,13 +242,13 @@ const HomeScreen = ({ navigation, route }) => {
       <View style={homeStyles.card}>
         <Ionicons name="water-outline" size={28} color="#00796b" />
         <Text style={homeStyles.cardTitle}>Nivel del tanque</Text>
-        <Text style={homeStyles.cardValue}>75%</Text>
+        <Text style={homeStyles.cardValue}>65%</Text>
       </View>
 
       <View style={homeStyles.card}>
         <Ionicons name="cloud-outline" size={28} color="#00796b" />
         <Text style={homeStyles.cardTitle}>Pronóstico de lluvia</Text>
-        <Text style={homeStyles.cardValue}>Moderada en 2 días</Text>
+        <Text style={homeStyles.cardValue}>Fuerte en 2 días</Text>
       </View>
 
       <View style={homeStyles.card}>
@@ -235,15 +257,23 @@ const HomeScreen = ({ navigation, route }) => {
         <Text style={homeStyles.cardValue}>350 Litros</Text>
       </View>
 
-      <Pressable style={homeStyles.logoutButton} onPress={() => navigation.navigate('Historial')}>
+      <Pressable
+        style={homeStyles.logoutButton}
+        onPress={() => navigation.navigate("Historial")}
+      >
         <Text style={homeStyles.logoutText}>Ver Historial</Text>
       </Pressable>
 
-      <Pressable style={homeStyles.logoutButton} onPress={() => navigation.navigate('Login')}>
+      <Pressable
+        style={homeStyles.logoutButton}
+        onPress={() => navigation.navigate("Login")}
+      >
         <Text style={homeStyles.logoutText}>Cerrar sesión</Text>
       </Pressable>
 
-      <Text style={homeStyles.footer}>Gracias por cuidar el agua con AquaViva 💧</Text>
+      <Text style={homeStyles.footer}>
+        Gracias por cuidar el agua con AquaViva 💧
+      </Text>
     </ScrollView>
   );
 };
@@ -252,41 +282,41 @@ const HomeScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
     padding: 20,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 30,
   },
   input: {
-    width: '100%',
+    width: "100%",
     padding: 10,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     marginVertical: 5,
     borderRadius: 5,
   },
   button: {
-    backgroundColor: 'blue',
+    backgroundColor: "blue",
     padding: 12,
     marginVertical: 10,
-    width: '100%',
+    width: "100%",
     borderRadius: 5,
   },
   buttonText: {
-    color: 'white',
-    textAlign: 'center',
+    color: "white",
+    textAlign: "center",
     fontSize: 18,
   },
   link: {
     marginTop: 10,
   },
   linkText: {
-    color: 'blue',
+    color: "blue",
   },
 });
 
